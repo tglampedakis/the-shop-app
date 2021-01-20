@@ -8,9 +8,8 @@ import productsReducer from './store/reducers/products';
 import cartReducer from './store/reducers/cart';
 import ShopNavigator from './navigation/ShopNavigator';
 
-
 const rootReducer = combineReducers({
-  products: productsReducer, 
+  products: productsReducer,
   cart: cartReducer
 });
 
@@ -27,13 +26,15 @@ export default function App() {
   const [fontLoaded, setFontLoaded] = useState(false);
 
   if (!fontLoaded) {
-    return <AppLoading startAsync={fetchFonts} onFinish={() => {
-      setFontLoaded(true);
-    }} onError={() => {
-      console.warn(Error);
-    }} />;
+    return (
+      <AppLoading
+        startAsync={fetchFonts}
+        onFinish={() => {
+          setFontLoaded(true);
+        }} onError={() => {console.warn(error)}}
+      />
+    );
   }
-
   return (
     <Provider store={store}>
       <ShopNavigator />
