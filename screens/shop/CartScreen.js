@@ -48,7 +48,7 @@ const CartScreen = props => {
           color={Colors.accent}
           title="Order Now"
           disabled={cartItems.length === 0}
-          onPress={}
+          onPress={sendOrderHandler}
           />
         )}
       </Card>

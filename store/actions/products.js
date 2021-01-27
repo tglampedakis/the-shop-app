@@ -6,8 +6,9 @@ export const UPDATE_PRODUCT = 'UPDATE_PRODUCT';
 export const SET_PRODUCTS = 'SET_PRODUCTS';
 
 export const fetchProducts = () => {
-    return async dispatch => {
+    return async (dispatch, getState) => {
         //any async code HERE !!
+        const userId = getState().auth.userId;
 
         try {
             const response = await fetch('https://rn-shop-app-7650c-default-rtdb.firebaseio.com/products.json');
@@ -20,10 +21,10 @@ export const fetchProducts = () => {
             const loadedProducts = [];
 
             for (const key in resData) {
-                loadedProducts.push(new Product(key, 'u1', resData[key].title, resData[key].imageUrl, resData[key].description, resData[key].price));
+                loadedProducts.push(new Product(key, resData[key].ownerId, resData[key].title, resData[key].imageUrl, resData[key].description, resData[key].price));
             }
 
-            dispatch({ type: SET_PRODUCTS, products: loadedProducts });
+            dispatch({ type: SET_PRODUCTS, products: loadedProducts, userProducts: loadedProducts.filter(prod => prod.ownerId === userId) });
         } catch(error) {
             throw error;
         }
@@ -32,8 +33,10 @@ export const fetchProducts = () => {
 };
 
 export const deleteProduct = productId => {
-    return async dispatch => {
-        const response = await fetch(`https://rn-shop-app-7650c-default-rtdb.firebaseio.com/products/${productsId}.json`, {method: 'DELETE'});
+    return async (dispatch, getState) => {2
+        const token = getState().auth.token;
+
+        const response = await fetch(`https://rn-shop-app-7650c-default-rtdb.firebaseio.com/products/${productsId}.json?auth=${token}`, {method: 'DELETE'});
 
         if (!response.ok) {
             throw new Error('Something went wrong!');
@@ -44,9 +47,12 @@ export const deleteProduct = productId => {
 };
 
 export const createProduct = (title, description, imageUrl, price) => {
-    return async dispatch => {
+    return async (dispatch, getState) => {
+        const token = getState().auth.token;
+        const userId = getState().auth.userId;
+
         //any async code HERE !!
-        const response = await fetch('https://rn-shop-app-7650c-default-rtdb.firebaseio.com/products.json', {
+        const response = await fetch(`https://rn-shop-app-7650c-default-rtdb.firebaseio.com/products.json?auth=${token}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -55,7 +61,8 @@ export const createProduct = (title, description, imageUrl, price) => {
                 title,
                 description,
                 imageUrl,
-                price
+                price,
+                ownerId: userId
             })
         });
 
@@ -66,7 +73,8 @@ export const createProduct = (title, description, imageUrl, price) => {
             title,
             description,
             imageUrl,
-            price
+            price,
+            ownerId: userId
         } });
     };
 
@@ -74,9 +82,10 @@ export const createProduct = (title, description, imageUrl, price) => {
 };
 
 export const updateProduct = (id, title, description, imageUrl) => {
-    return async dispatch => {
+    return async (dispatch, getState) => {
+        const token = getState().auth.token;
 
-        const response = await fetch(`https://rn-shop-app-7650c-default-rtdb.firebaseio.com/products/${id}.json`, {
+        const response = await fetch(`https://rn-shop-app-7650c-default-rtdb.firebaseio.com/products/${id}.json?auth=${token}`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json'
